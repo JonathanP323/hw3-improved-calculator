@@ -1,0 +1,38 @@
+import sys
+from calculator import add, subtract, multiply, divide
+
+def main():
+    try:
+        a = sys.argv[1]
+        b = sys.argv[2]
+        operation = sys.argv[3]
+
+        if not a.isdigit() or not b.isdigit():
+            print(f"Invalid number input: {a} or {b} is not a valid number.")
+            return
+
+        a = int(a)
+        b = int(b)
+
+        if operation == "add":
+            result = add(a, b)
+        elif operation == "subtract":
+            result = subtract(a, b)
+        elif operation == "multiply":
+            result = multiply(a, b)
+        elif operation == "divide":
+            result = divide(a, b)
+        else:
+            print(f"Unknown operation: {operation}")
+            return
+
+        print(f"The result of {a} {operation} {b} is equal to {result}")
+    except ZeroDivisionError as e:
+        print(f"An error occurred: {e}")
+    except IndexError:
+        print("Usage: python main.py <a> <b> <operation>")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+
+if __name__ == "__main__":
+    main()

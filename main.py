@@ -1,38 +1,51 @@
-import sys
-from calculator import add, subtract, multiply, divide
+import importlib
+import os
 
-def main():
-    try:
-        a = sys.argv[1]
-        b = sys.argv[2]
-        operation = sys.argv[3]
+def load_plugins():
+    plugins = {}
+    plugins_dir = "plugins"
+    for filename in os.listdir(plugins_dir):
+        if filename.endswith(".py") and not filename.startswith("__"):
+            module_name = filename[:-3]
+            module = importlib.import_module(f"{plugins_dir}.{module_name}")
+            plugins[module.operation_name()] = module
+    return plugins
 
-        if not a.isdigit() or not b.isdigit():
-            print(f"Invalid number input: {a} or {b} is not a valid number.")
-            return
+def repl():
+    print("Welcome to the REPL Calculator!")
+    print("Type 'menu' to see available commands or 'exit' to quit.")
 
-        a = int(a)
-        b = int(b)
+    plugins = load_plugins()
 
-        if operation == "add":
-            result = add(a, b)
-        elif operation == "subtract":
-            result = subtract(a, b)
-        elif operation == "multiply":
-            result = multiply(a, b)
-        elif operation == "divide":
-            result = divide(a, b)
-        else:
-            print(f"Unknown operation: {operation}")
-            return
+    while True:
+        user_input = input("Enter command (e.g., add 5 3): ").strip()
+        if user_input.lower() == "exit":
+            print("Goodbye!")
+            break
+        if user_input.lower() == "menu":
+            print("Available commands:")
+            for command in plugins:
+                print(command)
+            continue
 
-        print(f"The result of {a} {operation} {b} is equal to {result}")
-    except ZeroDivisionError as e:
-        print(f"An error occurred: {e}")
-    except IndexError:
-        print("Usage: python main.py <a> <b> <operation>")
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        parts = user_input.split()
+        if len(parts) != 3:
+            print("Invalid input. Use format: <command> <a> <b>")
+            continue
+
+        command, a, b = parts
+        if command not in plugins:
+            print(f"Unknown operation: {command}")
+            continue
+
+        try:
+            a = float(a)
+            b = float(b)
+            result = plugins[command].run(a, b)
+            print(f"The result of {a} {command} {b} is: {result}")
+        except Exception as e:
+            print(f"Error: {e}")
 
 if __name__ == "__main__":
-    main()
+    repl()
+
